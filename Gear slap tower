@@ -1,0 +1,200 @@
+-- โหลด Rayfield Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- สร้างหน้าต่าง UI
+local Window = Rayfield:CreateWindow({
+   Name = "Ronaldo ⚡ | Gear Slap Tower",
+   LoadingTitle = "Ronaldo Script Loading...",
+   LoadingSubtitle = "by Ronaldo ⚡",
+   ConfigurationSaving = {
+      Enabled = false
+   },
+   Discord = {
+      Enabled = false
+   },
+   KeySystem = false
+})
+
+-- สร้าง Tab หลัก
+local MainTab = Window:CreateTab("Main Features", 4483362458) -- Icon ID
+
+------------------------------------------------------------------
+-- 1. Get Admin (จำลองสิทธิ์แอดมิน / โหลด HD Admin)
+------------------------------------------------------------------
+MainTab:CreateButton({
+   Name = "Get Admin",
+   Callback = function()
+      -- พยายามเรียกใช้ HD Admin หากตัวเกมเปิดใช้งานไว้
+      local hdAdmin = game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminClient") or game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminSetup")
+      if hdAdmin then
+         Rayfield:Notify({
+            Title = "Admin System",
+            Content = "กำลังพยายามเปิดใช้งาน HD Admin...",
+            Duration = 3,
+            Image = 4483362458,
+         })
+         -- Trigger HD Admin client
+         pcall(function()
+            require(game:GetService("ReplicatedStorage").HDAdminClient.Signals).RequestRank:FireServer()
+         end)
+      else
+         Rayfield:Notify({
+            Title = "Admin System",
+            Content = "เปิดใช้งาน Local Admin UI เรียบร้อย!",
+            Duration = 3,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+------------------------------------------------------------------
+-- 2. ใช้ได้จริง (Infinite Yield Admin Cmds)
+------------------------------------------------------------------
+MainTab:CreateButton({
+   Name = "ใช้ได้จริง (Admin Commands)",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "คำสั่งแอดมินที่ใช้ได้จริง",
+         Content = "กำลังรัน Infinite Yield Script...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+   end,
+})
+
+------------------------------------------------------------------
+-- 3. Slap Power (ปรับแรงตบ 1 - 1000)
+------------------------------------------------------------------
+local currentPower = 1
+MainTab:CreateSlider({
+   Name = "Slap Power (1 - 1000)",
+   Range = {1, 1000},
+   Increment = 1,
+   Suffix = "Power",
+   CurrentValue = 1,
+   Flag = "SlapPowerSlider",
+   Callback = function(Value)
+      currentPower = Value
+      local player = game.Players.LocalPlayer
+      
+      -- ปรับเปลี่ยน Attribute หรือ Leaderstats แรงตบในเครื่องผู้เล่น
+      pcall(function()
+         if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("SlapPower") then
+            player.leaderstats.SlapPower.Value = currentPower
+         end
+         
+         -- ปรับค่าแรงตบในตัวละคร/อุปกรณ์ที่ถือ
+         local character = player.Character
+         if character then
+            for _, tool in pairs(character:GetChildren()) do
+               if tool:IsA("Tool") then
+                  if tool:FindFirstChild("Power") then tool.Power.Value = currentPower end
+                  if tool:FindFirstChild("Damage") then tool.Damage.Value = currentPower end
+                  tool:SetAttribute("Power", currentPower)
+               end
+            end
+         end
+      end)
+   end,
+})
+
+------------------------------------------------------------------
+-- 4. Ghost Mode (เดินทะลุสิ่งกีดขวาง / ลอยตัว)
+------------------------------------------------------------------
+local ghostEnabled = false
+local ghostConnection
+
+MainTab:CreateToggle({
+   Name = "Ghost Mode (Noclip)",
+   CurrentValue = false,
+   Flag = "GhostToggle",
+   Callback = function(Value)
+      ghostEnabled = Value
+      local player = game.Players.LocalPlayer
+      
+      if ghostEnabled then
+         ghostConnection = game:GetService("RunService").Stepped:Connect(function()
+            if player.Character then
+               for _, part in pairs(player.Character:GetDescendants()) do
+                  if part:IsA("BasePart") and part.CanCollide == true then
+                     part.CanCollide = false
+                  end
+               end
+            end
+         end)
+         Rayfield:Notify({
+            Title = "Ghost Mode",
+            Content = "เปิดใช้งาน Ghost Mode (เดินทะลุแมพ)",
+            Duration = 2,
+            Image = 4483362458,
+         })
+      else
+         if ghostConnection then
+            ghostConnection:Disconnect()
+         end
+         if player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+               if part:IsA("BasePart") then
+                  part.CanCollide = true
+               end
+            end
+         end
+         Rayfield:Notify({
+            Title = "Ghost Mode",
+            Content = "ปิดใช้งาน Ghost Mode",
+            Duration = 2,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+------------------------------------------------------------------
+-- 5. Fake Lag (ทำให้คนอื่นเห็นเราแลค/วาร์ป)
+------------------------------------------------------------------
+local fakeLagEnabled = false
+local fakeLagLoop
+
+MainTab:CreateToggle({
+   Name = "Fake Lag",
+   CurrentValue = false,
+   Flag = "FakeLagToggle",
+   Callback = function(Value)
+      fakeLagEnabled = Value
+      local player = game.Players.LocalPlayer
+      
+      if fakeLagEnabled then
+         task.spawn(function()
+            while fakeLagEnabled do
+               if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                  -- แช่แข็งตำแหน่งชั่วคราวเพื่อส่งแพ็กเก็ตล่าช้า
+                  player.Character.HumanoidRootPart.Anchored = true
+                  task.wait(0.3)
+                  player.Character.HumanoidRootPart.Anchored = false
+                  task.wait(0.1)
+               else
+                  task.wait(0.1)
+               end
+            end
+         end)
+         Rayfield:Notify({
+            Title = "Fake Lag",
+            Content = "เปิดใช้งาน Fake Lag เรียบร้อย",
+            Duration = 2,
+            Image = 4483362458,
+         })
+      else
+         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.Anchored = false
+         end
+         Rayfield:Notify({
+            Title = "Fake Lag",
+            Content = "ปิดใช้งาน Fake Lag",
+            Duration = 2,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
